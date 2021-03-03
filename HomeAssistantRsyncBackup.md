@@ -1,6 +1,7 @@
 # Copy Home Assistant Snapshots to a USB stick for protection.
 
-## NOTE: this does NOT create the snaps, it merly copies them when manually or automatically created.
+### NOTE: this does NOT create the snaps, it merly copies them when manually or automatically created. 
+### NOTE2: This requires rsync to be installed, so you need access to the underlying OS! HASSOS mostlikely won't work.
 
 ## Requirements
 An EXT4 formatted USB stick with sufficient capacity
