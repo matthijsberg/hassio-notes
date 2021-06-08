@@ -40,5 +40,11 @@ If you want rsync to run every night, add it to the crontab:
 Open Crontab:
 `sudo crontab -e`
 
-Add the line:
-`0 5 * * * rsync --delete -avu "/usr/share/hassio/backup/" "/media/habackup"`
+Add the lines:
+
+# Rsync backups to a mapped USB drive for back-up off system quick and dirty
+0 5 * * * rsync --delete -avu "/usr/share/hassio/backup/" "/media/habackup"
+
+For reference, a Crontab line to delte images shot from my webcam > 28 days:
+# clean up old camera image files
+0 4 * * * root find /usr/share/hassio/media/cameras/ \( -iname '*jpeg' -o -iname '*jpg' ! -iname '*latest*' \) -type f -mtime +28 -delete
