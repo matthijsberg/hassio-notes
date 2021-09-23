@@ -1,11 +1,12 @@
 # Custom config for Marcel Zuidwijk his DSMR reader. 
+# used wifi secrets tomatch my config and secrets for API OTA passwords (added)
 # using different names (from official docs) and kW(h) for everything (not Watt)
 # added sum sensors to calc low and high tarif into 1 sensor per consumed / returend.
-
+# added throtteling for some less important metrics like voltage and per phase prod (not total) to 10s instead of 1s updates.
 ---
 substitutions:
   device_name: p1_dsmr_zuidwijk
-  device_description: "DIY P1 module to read your smart meter"
+  device_description: "DIY P1 module to read your smart meter - customized MvdB Version"
  
 #external_components:
 #  - source: github://zuidwijk/dsmr
@@ -89,7 +90,8 @@ globals:
  
 dsmr:
   id: dsmr_instance
- 
+
+
 sensor:
   - platform: dsmr
     energy_delivered_tariff1:
@@ -141,16 +143,22 @@ sensor:
       unit_of_measurement: V
       accuracy_decimals: 1
       icon: "mdi:flash"
+      filters:
+      - throttle: 10s
     voltage_l2:
       name: "Instant Voltage L2"
       unit_of_measurement: V
       accuracy_decimals: 1
       icon: "mdi:flash"
+      filters:
+      - throttle: 10s
     voltage_l3:
       name: "Instant Voltage L3"
       unit_of_measurement: V
       accuracy_decimals: 1
       icon: "mdi:flash"
+      filters:
+      - throttle: 10s
     current_l1:
       name: "Instant Current L1"
       unit_of_measurement: A
@@ -170,31 +178,42 @@ sensor:
       name: "Power Consumption Phase L1"
       unit_of_measurement: kW
       accuracy_decimals: 3
+      filters:
+      - throttle: 10s
     power_delivered_l2:
       name: "Power Consumption Phase L2"
       unit_of_measurement: kW
       accuracy_decimals: 3
+      filters:
+      - throttle: 10s
     power_delivered_l3:
       name: "Power Consumption Phase L3"
       unit_of_measurement: kW
       accuracy_decimals: 3
+      filters:
+      - throttle: 10s
     power_returned_l1:
       name: "Power Production Phase L1"
       unit_of_measurement: kW
       accuracy_decimals: 3
+      filters:
+      - throttle: 10s
     power_returned_l2:
       name: "Power Production Phase L2"
       unit_of_measurement: kW
       accuracy_decimals: 3
+      filters:
+      - throttle: 10s
     power_returned_l3:
       name: "Power Production Phase L3"
       unit_of_measurement: kW
       accuracy_decimals: 3
+      filters:
+      - throttle: 10s
     gas_delivered:
       name: "Gas Consumption"
       state_class: total_increasing
       unit_of_measurement: m³
-      accuracy_decimals: 3
       icon: "mdi:fire"
   - platform: uptime
     name: "Uptime"
