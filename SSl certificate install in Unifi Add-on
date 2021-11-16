@@ -1,0 +1,48 @@
+In the 1.0 release notes there is a breaking change that custom certs are no longer possible, and a self signed cert is created. I guess that's because of security... 
+
+I would like to opt for getting this back in, but that's just me because I use hostnames and matching certs from letsencrypt for some weird "SSL green lock in browser must be good" reason.. :wink:
+
+Anyway, Here is a manual way to get a cert from HASSIO back into the UNIFY container. Note the "manual" there. It means that when you refresh your certificate, for example with Let's Encrypt, you need to rerun the below. Far from friendly and hoping for better times with the official plugin. (or we need to crontab this somewhere). 
+
+# Think again
+***To start, you need root access and you need to be brave to perform the below.*** 
+ 
+ - SSH into you host (not the supervisor, but the host that runs the containers. as root or with sudo rights.
+
+
+- First find the container ID and put it in a var
+`UNIFI_ID=$(sudo docker ps -aqf "name=unifi")`
+
+- Copy the cert files into the container from Hassio (mine are Let's Encrypt wildcard certs, if you have more files, copy the all)
+`sudo docker cp /usr/share/hassio/ssl/fullchain.pem $UNIFI_ID:/root/fullchain.pem`
+`sudo docker cp /usr/share/hassio/ssl/privkey.pem $UNIFI_ID:/root/privkey.pem`
+
+- Bash into the container
+`sudo docker exec -t -i $UNIFI_ID /bin/bash`
+
+- Change dir to the cert location
+`cd /root/`
+
+- Migrate the certs to a format UNIFI understands (again, mine are wildcard, perhaps you need a different for at "-in" if you have more file, but i do not think so.
+`openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem -out unifi.p12 -name unifi -CAfile fullchain.pem -caname root`
+
+Enter the password `temppass`.
+
+- Back-up the keystore PLEASE:
+`mv /usr/lib/unifi/data/keystore /backup/unifi/keystore.backup`
+
+- Import the cert into the UI KEy Store.
+`keytool -importkeystore -deststorepass aircontrolenterprise -destkeypass aircontrolenterprise -destkeystore /usr/lib/unifi/data/keystore -srckeystore unifi.p12 -srcstoretype PKCS12 -alias unifi -srcstorepass temppass -noprompt`
+
+- Reboot / Restart the "/usr/bin/java -Xmx256m -Xms128m -jar /usr/lib/unifi/lib/ace.jar start" process
+`ps -ef`
+`kill -9  <processID>`
+It will automatically restart. 
+
+- Or restart via supervisor GUI
+
+If it doesn't work, bash back into the container and restore the keystore. 
+
+Happy hacking. :upside_down_face:
+
+update nov 22, small changes to open ssl command and back-up to mapped back-up dir outside container based on install in latest version of add-on
